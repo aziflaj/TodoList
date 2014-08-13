@@ -7,17 +7,13 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
-import android.widget.ListAdapter;
-import android.widget.SimpleCursorAdapter;
+import android.view.View;
+import android.widget.*;
 import com.example.TodoList.db.TaskContract;
 import com.example.TodoList.db.TaskDBHelper;
-
-import static com.example.TodoList.db.TaskContract.TABLE;
 
 public class MainActivity extends ListActivity {
 	private ListAdapter listAdapter;
@@ -27,9 +23,7 @@ public class MainActivity extends ListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		Log.d("MainActivity","UpdateUI");
 		updateUI();
-
 	}
 
 	@Override
@@ -51,7 +45,6 @@ public class MainActivity extends ListActivity {
 					@Override
 					public void onClick(DialogInterface dialogInterface, int i) {
 						String task = inputField.getText().toString();
-						Log.d("MainActivity",task);
 
 						helper = new TaskDBHelper(MainActivity.this);
 						SQLiteDatabase db = helper.getWritableDatabase();
@@ -60,7 +53,7 @@ public class MainActivity extends ListActivity {
 						values.clear();
 						values.put(TaskContract.Columns.TASK,task);
 
-						db.insertWithOnConflict(TABLE,null,values,SQLiteDatabase.CONFLICT_IGNORE);
+						db.insertWithOnConflict(TaskContract.TABLE,null,values,SQLiteDatabase.CONFLICT_IGNORE);
 						updateUI();
 					}
 				});
@@ -74,29 +67,40 @@ public class MainActivity extends ListActivity {
 				return false;
 		}
 	}
+
 	private void updateUI() {
-		Log.d("MainActivity","UpdateUI method");
 		helper = new TaskDBHelper(MainActivity.this);
 		SQLiteDatabase sqlDB = helper.getReadableDatabase();
 		Cursor cursor = sqlDB.query(TaskContract.TABLE,
 				new String[]{TaskContract.Columns._ID, TaskContract.Columns.TASK},
-				null,null,null,null,null);
-
-
-		cursor.moveToFirst();
-		while(cursor.moveToNext()) {
-			Log.d("MainActivity cursor",cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.TASK)));
-		}
+				null, null, null, null, null);
 
 		listAdapter = new SimpleCursorAdapter(
 				this,
 				R.layout.task_view,
 				cursor,
-				new String[] { TaskContract.Columns.TASK},
-				new int[] { R.id.taskTextView},
+				new String[]{TaskContract.Columns.TASK},
+				new int[]{R.id.taskTextView},
 				0
 		);
-		Log.d("MainActivity","setting list adapter");
+
 		this.setListAdapter(listAdapter);
+	}
+
+	public void onDoneButtonClick(View view) {
+		View v = (View) view.getParent();
+		TextView taskTextView = (TextView) v.findViewById(R.id.taskTextView);
+		String task = taskTextView.getText().toString();
+
+		String sql = String.format("DELETE FROM %s WHERE %s = '%s'",
+						TaskContract.TABLE,
+						TaskContract.Columns.TASK,
+						task);
+
+
+		helper = new TaskDBHelper(MainActivity.this);
+		SQLiteDatabase sqlDB = helper.getWritableDatabase();
+		sqlDB.execSQL(sql);
+		updateUI();
 	}
 }
