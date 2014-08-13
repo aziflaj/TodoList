@@ -16,12 +16,11 @@ public class TaskDBHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase sqlDB) {
 		String sqlQuery =
 				String.format("CREATE TABLE %s (" +
-						"%s int primary key autoincrement, " +
-						"%s text ) ", TaskContract.TABLE,
-								      TaskContract.Columns.ID,
-								      TaskContract.Columns.TASK);
+						"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+						"%s TEXT)", TaskContract.TABLE,
+								    TaskContract.Columns.TASK);
 
-		Log.d("TaskDBHelper","Qyery to form table: "+sqlQuery);
+		Log.d("TaskDBHelper","Query to form table: "+sqlQuery);
 		sqlDB.execSQL(sqlQuery);
 	}
 
