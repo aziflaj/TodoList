@@ -8,12 +8,11 @@ public class TaskContract {
 	public static final int DB_VERSION = 1;
 	public static final String TABLE = "tasks";
 
-	public static final String DEFAULT_SORT = Columns.CREATED_AT + " DESCR";
+	public static final String DEFAULT_SORT = Columns.ID + " DESCR";
 
 
 	public class Columns {
 		public static final String ID = BaseColumns._ID;
 		public static final String TASK = "task";
-		public static final String CREATED_AT = "created_at";
 	}
 }

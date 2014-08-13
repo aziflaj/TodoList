@@ -2,12 +2,16 @@ package com.example.TodoList;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import com.example.TodoList.db.TaskContract;
+import com.example.TodoList.db.TaskDBHelper;
 
 public class MainActivity extends Activity {
 	/**
@@ -37,7 +41,18 @@ public class MainActivity extends Activity {
 				builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialogInterface, int i) {
-						Log.d("MainActivity",inputField.getText().toString());
+						String task = inputField.getText().toString();
+						Log.d("MainActivity",task);
+
+						TaskDBHelper helper = new TaskDBHelper(MainActivity.this);
+						SQLiteDatabase db = helper.getWritableDatabase();
+						ContentValues values = new ContentValues();
+
+						values.clear();
+						values.put(TaskContract.Columns.TASK,task);
+
+						db.insertWithOnConflict(TaskContract.TABLE,null,values,SQLiteDatabase.CONFLICT_IGNORE);
+
 					}
 				});
 
